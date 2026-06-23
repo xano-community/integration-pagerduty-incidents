@@ -20,7 +20,7 @@ function "pagerduty_create_incident" {
         urgency: $input.urgency
       }
     }
-    var.update $incident { value = $incident|set_ifnotnull:"incident_key":$input.incident_key }
+    var.update $incident { value = $incident|set_ifnotempty:"incident_key":$input.incident_key }
 
     conditional {
       if ($input.body != null) {
@@ -45,7 +45,7 @@ function "pagerduty_create_incident" {
 
     precondition ($api_result.response.status == 201) {
       error_type = "standard"
-      error = "PagerDuty API error: " ~ $api_result.response.result
+      error = "PagerDuty API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }

@@ -31,10 +31,10 @@ Claude will clone the repo and push the functions to your workspace.
    ```sh
    git clone https://github.com/xano-community/integration-pagerduty-incidents.git
    cd integration-pagerduty-incidents
-   xano workspace:push . -w <your-workspace-id>
+   xano workspace push . -w <your-workspace-id>
    ```
 
-   Replace `<your-workspace-id>` with the ID from `xano workspace:list`.
+   Replace `<your-workspace-id>` with the ID from `xano workspace list`.
 
 ## Configure Credentials
 
@@ -56,7 +56,9 @@ Call any function from another function, task, or API endpoint using `function.r
 ```xs
 function.run "pagerduty_create_incident" {
   input = {
-    // See function signature for required parameters
+    title: "Server CPU critical",
+    service_id: "<your-pagerduty-service-id>",
+    from_email: "<valid-pagerduty-user-email>"
   }
 } as $result
 ```
@@ -67,9 +69,23 @@ function.run "pagerduty_create_incident" {
 
 Opens a new incident on a specified PagerDuty service with a title, urgency level, and optional body details. This triggers the service's escalation policy and notifies on-call responders. Use this to automatically escalate critical application errors, failed jobs, or threshold breaches detected in your Xano workflows.
 
+**Required inputs:**
+- `title` — incident title/description
+- `service_id` — PagerDuty service ID to create the incident on
+- `from_email` — email address of a valid PagerDuty user in your account (required by the PagerDuty REST API v2 `From:` header)
+
+**Optional inputs:**
+- `urgency` — `"high"` (default) or `"low"`
+- `incident_key` — deduplication key to prevent duplicate incidents
+- `body` — detailed incident description
+
 ### `pagerduty_resolve_incident`
 
 Transitions an open incident to the resolved state by its incident ID. This stops further escalation notifications and marks the issue as handled. Ideal for closing the loop on automated alerting — resolve incidents automatically when your application confirms the underlying issue has been corrected.
+
+**Required inputs:**
+- `incident_id` — PagerDuty incident ID to resolve
+- `from_email` — email address of a valid PagerDuty user in your account (required by the PagerDuty REST API v2 `From:` header)
 
 ## License
 
